@@ -1,0 +1,7 @@
+{
+  "name": "QRMobileApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
