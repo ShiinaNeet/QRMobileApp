@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { RouteComponentProps } from 'react-router';
 import { DBR, TextResult } from 'capacitor-plugin-dynamsoft-barcode-reader';
 import Account from '../components/Account';
+import axios from 'axios';
 
 const Home = (props:RouteComponentProps) => {
   const initLicenseTried = useRef(false);
@@ -56,16 +57,39 @@ const Home = (props:RouteComponentProps) => {
         props.history.replace({ state: {} });
       }
     }
+    fetchData();
   }, [props.location.state]);
 
- 
+  const fetchData = async () => {
+    axios.get('/violation/paginated', {
+        params: {
+            skip: 0,
+            limit: 100,
+        },
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then((response) => {
+        if(response.data.success === true){
+            console.log("Data fetched successfully");
+            // setViolations(response.data.total);
+        }
+        else{
+            console.log("Failed to fetch data");
+        }
+    })
+    .catch((error) => {
+        console.error('There was an error fetching the data!', error);
+    });
+};
 
   return (
     <IonPage>
     <IonHeader>
       <IonToolbar>
         <IonTitle>QR Code Scanner</IonTitle>
-        {/* <Account {...props}/> */}
+        <Account {...props}/>
       </IonToolbar>
     </IonHeader>
     <IonContent fullscreen className="ion-padding" >

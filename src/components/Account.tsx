@@ -1,5 +1,5 @@
-import { IonButton, IonButtons, IonPopover } from '@ionic/react'
-import React from 'react'
+import { IonButton, IonButtons, IonLoading, IonPopover } from '@ionic/react'
+import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router';
 
 import { useAuth } from '../auth/AuthProvider'
@@ -7,16 +7,23 @@ import { useAuth } from '../auth/AuthProvider'
 
 const Account = (props: RouteComponentProps) => {
     const {logout} = useAuth();
-
+    const [alertMessage, setAlertMessage] = useState({isOpen: false, message: ''});
     const handleLogout = async () => {
         try{
-            await logout(() => {
+            // setAlertMessage({isOpen: true, message: 'Loading...'});
+           
+            logout(() => {
                 props.history.push("/Login");
+                
             });
         }
-        catch (error) {
+        catch (error: any) {
             console.error("Failed to logout", error);
+            setAlertMessage({isOpen: true, message: error.message as string});
         }
+        setTimeout(() => {
+            setAlertMessage({isOpen: false, message: ''});
+        }, 2000);
     }
 
   return (
@@ -29,6 +36,7 @@ const Account = (props: RouteComponentProps) => {
                 </IonButton>
             </IonPopover>
         </IonButtons>
+        <IonLoading isOpen={alertMessage.isOpen} message={alertMessage.message}  />
     </>  )
 }
 export default Account;

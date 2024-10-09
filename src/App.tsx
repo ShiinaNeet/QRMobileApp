@@ -41,20 +41,39 @@ import './theme/variables.css';
 
 setupIonicReact();
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <AuthProvider>
-          <PrivateRoute path="/home" component={Home} />
-          <PrivateRoute path="/scanner" component={Scanner} />
-          <PrivateRoute path="/violation" component={Violation} />
-          <Route exact path="/" render={() => <Redirect to="/login" />} />
-          <Route path="/login" component={Login} exact={true} />
-        </AuthProvider>
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+import {setupAxiosInterceptors} from './auth/axios';
+import { Preferences } from '@capacitor/preferences';
+import { useEffect } from 'react';
+
+
+
+
+const App: React.FC = () => {
+  useEffect(() => {
+    const initializeApp = async () => {
+      const { value: accessToken } = await Preferences.get({ key: 'accessToken' });
+      if (accessToken) {
+        setupAxiosInterceptors(accessToken);
+      }
+    };
+  
+    initializeApp();
+  }, []);
+    return (
+    <IonApp>
+      <IonReactRouter>
+        <IonRouterOutlet>
+          <AuthProvider>
+            <PrivateRoute path="/home" component={Home} />
+            <PrivateRoute path="/scanner" component={Scanner} />
+            <PrivateRoute path="/violation" component={Violation} />
+            <Route exact path="/" render={() => <Redirect to="/login" />} />
+            <Route path="/login" component={Login} exact={true} />
+          </AuthProvider>
+        </IonRouterOutlet>
+      </IonReactRouter>
+    </IonApp>
+    );
+};
 
 export default App;

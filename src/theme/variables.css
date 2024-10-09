@@ -1,2 +1,48 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
+.box{
+  background-color: #f4f4f4;
+  border-radius: 1px;
+  padding: 1px;
+  margin: 1px;
+}
+.textheader{
+  font-size: 20px;
+  font-weight: bold;
+  color: #000000;
+}
+.input {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+
+    font-size: 16px;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.input:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+.ion-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ion-item label {
+    width: fit;
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.ion-item .input {
+    flex: 2;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
