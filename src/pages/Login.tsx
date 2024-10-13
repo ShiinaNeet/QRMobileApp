@@ -47,20 +47,23 @@ export default function Login(props: RouteComponentProps) {
         <>
             <IonHeader>
                 <IonToolbar>
-                    <IonTitle>Login</IonTitle>
+                    <IonTitle>STUDENT VIOLATION</IonTitle>
                 </IonToolbar>
             </IonHeader>
             <IonContent className="ion-padding">
+                <div className='container-center'>
                 <IonItem className='ion-item'>
-                    <label htmlFor="">Full Name:  </label>
-                    <input className='input' placeholder="Enter Full Name" onInput={(event) => setUser({ ...user, fullname: (event.target as HTMLInputElement).value })}></input>
+                    <label htmlFor="">Username:  </label>
+                    <input className='input' placeholder="Enter Username" onInput={(event) => setUser({ ...user, fullname: (event.target as HTMLInputElement).value })}></input>
                 </IonItem>
-                <IonItem>
-                    <IonInput type="password" label="Password" onIonChange={(event) => setUser({ ...user, password: event.target.value as string })}>
+                <IonItem className='ion-item'>
+                    <IonInput type="password" label="Password:"  onIonChange={(event) => setUser({ ...user, password: event.target.value as string })}>
                         <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
                     </IonInput>
                 </IonItem>
                 <IonButton expand="full" onClick={handleLogin}>Login</IonButton>
+                </div>
+                
             </IonContent>
             <IonToast
             isOpen={alertMessage.isOpen}

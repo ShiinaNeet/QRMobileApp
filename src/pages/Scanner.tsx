@@ -54,16 +54,14 @@ const Scanner = (props: RouteComponentProps) => {
   }
 
   const onScanned = (results: TextResult[]) => {
-    console.log(results);
-    if (results.length > 0 && !scanned.current) {
+    // console.log(results);
+    if (results.length > 0 && scanned.current === false) {
       document.documentElement.style.setProperty('--ion-background-color', ionBackground.current);
       scanned.current = true;
+
       setBarcodeResults(results);
-      // setIsOpen(true);
-     // Stop continuous scanning
+      // Stop continuous scanning
       props.history.push("violation", { data: results[0].barcodeText });
-      // props.history.replace({ state: {results:results} });
-      // props.history.goBack();
     }
   }
 

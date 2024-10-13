@@ -29,10 +29,10 @@ const Account = (props: RouteComponentProps) => {
   return (
     <>
         <IonButtons slot="end">
-            <IonButton id="click-trigger">Account</IonButton>
+            <IonButton id="click-trigger" color="primary">Account</IonButton>
             <IonPopover trigger="click-trigger" triggerAction="click">
-                <IonButton id="click-trigger" expand="full" onClick={handleLogout}>
-                Logout
+                <IonButton id="click-trigger" expand="full" color="primary" onClick={handleLogout}>
+                    Logout
                 </IonButton>
             </IonPopover>
         </IonButtons>

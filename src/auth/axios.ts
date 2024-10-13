@@ -1,3 +1,4 @@
+import { Preferences } from '@capacitor/preferences';
 import axios from 'axios';
 
 // Set axios as a global variable
@@ -11,9 +12,14 @@ axios.defaults.headers.common['Access-Control-Allow-Origin'] = "*";
 
 export const setupAxiosInterceptors = (token: string) => {
   axios.interceptors.request.use(
-    (config) => {
+    async (config) => {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      const { value: accessToken } = await Preferences.get({ key: 'accessToken' });
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
       }
       return config;
     },

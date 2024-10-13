@@ -38,7 +38,8 @@ const Home = (props:RouteComponentProps) => {
           await DBR.initLicense({license:"DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzMjc5NzQ1LVRYbFFjbTlxIiwibWFpblNlcnZlclVSTCI6Imh0dHBzOi8vbWRscy5keW5hbXNvZnRvbmxpbmUuY29tIiwib3JnYW5pemF0aW9uSUQiOiIxMDMyNzk3NDUiLCJzdGFuZGJ5U2VydmVyVVJMIjoiaHR0cHM6Ly9zZGxzLmR5bmFtc29mdG9ubGluZS5jb20iLCJjaGVja0NvZGUiOjU1MjE4ODQxN30="})  //one-day trial
           setLicenseInitialized(true);
         } catch (error) {
-          alert(error);
+          // alert(error);
+          console.error(error);
         }
       }
       initLicense();
@@ -100,12 +101,14 @@ const Home = (props:RouteComponentProps) => {
       </IonHeader>
           {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
             <div style={{width: '100%'}}> */}
-              <IonButton expand="full" onClick={startScan}>"Start Scanning"</IonButton>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+              <IonButton expand="full" onClick={startScan} >Start Scanning QR Code</IonButton>
+            </div>
               <IonList>
-                <IonItem>
+                {/* <IonItem>
                   <IonLabel>Continuous Scan</IonLabel>
                   <IonCheckbox slot="end" value="Continuous Scan" checked={continuousScan} onIonChange={(e) => handleOption(e)}/>
-                </IonItem>
+                </IonItem> */}
                 {(barcodeResults.length>0) &&
                   <IonListHeader>
                     <IonLabel>Results:</IonLabel>
