@@ -201,6 +201,8 @@ export default function Violation(props: RouteComponentProps) {
             })
             .then((response) => {
                 if (
+                    response.data.data.userid &&
+                    response.data.data.srcode &&
                     response.data.data.userid.length > 0 &&
                     response.data.data.srcode.length > 0
                 ) {
@@ -458,7 +460,7 @@ export default function Violation(props: RouteComponentProps) {
                                             : handleSave
                                     }
                                 >
-                                    Create Student Violation
+                                  { isExistingStudent ? 'Update Student Violation' : 'Create Student Violation' }  
                                 </IonButton>
                             </div>
 
