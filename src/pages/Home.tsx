@@ -35,7 +35,7 @@ const Home = (props:RouteComponentProps) => {
       initLicenseTried.current = true;
       const initLicense = async () => {
         try {
-          await DBR.initLicense({license:"DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzMjc5NzQ1LVRYbFFjbTlxIiwibWFpblNlcnZlclVSTCI6Imh0dHBzOi8vbWRscy5keW5hbXNvZnRvbmxpbmUuY29tIiwib3JnYW5pemF0aW9uSUQiOiIxMDMyNzk3NDUiLCJzdGFuZGJ5U2VydmVyVVJMIjoiaHR0cHM6Ly9zZGxzLmR5bmFtc29mdG9ubGluZS5jb20iLCJjaGVja0NvZGUiOjU1MjE4ODQxN30="})  //one-day trial
+          await DBR.initLicense({license:"DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzMzg0MjUyLVRYbFhaV0pRY205cSIsIm1haW5TZXJ2ZXJVUkwiOiJodHRwczovL21kbHMuZHluYW1zb2Z0b25saW5lLmNvbSIsIm9yZ2FuaXphdGlvbklEIjoiMTAzMzg0MjUyIiwic3RhbmRieVNlcnZlclVSTCI6Imh0dHBzOi8vc2Rscy5keW5hbXNvZnRvbmxpbmUuY29tIiwiY2hlY2tDb2RlIjoyNzczMTk4MH0="})  //one-day trial
           setLicenseInitialized(true);
         } catch (error) {
           // alert(error);
