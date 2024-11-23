@@ -140,9 +140,9 @@ export default function Violation(props: RouteComponentProps) {
       studentViolation.srcode == "" ||
       studentViolation.userid == "" ||
       studentViolation.violations.length == 0 ||
-      studentInfo.department == "" ||
-      studentInfo.department == undefined ||
-      studentInfo.year == ""
+      studentInfo.year == "" ||
+      studentInfo.assigned_department == "" ||
+      studentInfo.assigned_department == undefined
     ) {
       console.log("All fields are required");
       setIsLoading(false);
@@ -150,7 +150,7 @@ export default function Violation(props: RouteComponentProps) {
       setAlertMessage("All fields are required");
       return;
     }
-    const yearDepartment = `${studentInfo.department} - ${studentInfo.year}`;
+    const yearDepartment = `${studentInfo.assigned_department} - ${studentInfo.year}`;
     console.warn("HANDLE_UPDATE_FUNCTION_student_info: ", yearDepartment);
 
     const updatedStudentViolation = {
@@ -263,13 +263,15 @@ export default function Violation(props: RouteComponentProps) {
             violations: response.data.violations,
             email: response.data.email,
             year_and_department: response.data.year_and_department,
-            assigned_department: response.data.year_and_department,
+            assigned_department:
+              response.data.year_and_department.split(" - ")[0],
           });
 
           setStudentInfo({
             department: response.data.year_and_department.split(" - ")[0],
             year: response.data.year_and_department.split(" - ")[1],
-            assigned_department: response.data.assigned_department,
+            assigned_department:
+              response.data.year_and_department.split(" - ")[0],
           });
           console.info("FETCH_USER: ", studentInfo);
         }
@@ -398,15 +400,29 @@ export default function Violation(props: RouteComponentProps) {
                 </IonButtons>
               </IonToolbar>
             </IonHeader>
-            <IonContent fullscreen className="ion-padding">
-              <div className="container-center">
-                <IonList style={{ width: "100%" }}>
+            <IonContent fullscreen className=" ParentContainer">
+              <div className="GridLayout">
+                <div className="container-center">
                   {propsdata.data.length > 0 && (
                     <>
-                      <IonItem className="">
-                        <div className="container">
-                          <label htmlFor="">{studentViolation._id}</label>
-                          <label>
+                      <div className="ion-violation-input">
+                        {/* <label htmlFor="">{studentViolation._id}</label> */}
+                        <IonInput
+                          labelPlacement="stacked"
+                          label="Student ID"
+                          value={studentViolation.userid}
+                        ></IonInput>
+                        <IonInput
+                          labelPlacement="stacked"
+                          label="Full Name"
+                          value={studentViolation.fullname}
+                        ></IonInput>
+                        <IonInput
+                          labelPlacement="stacked"
+                          label="User Type"
+                          value={studentViolation.type}
+                        ></IonInput>
+                        {/* <label>
                             {studentViolation.userid
                               ? studentViolation.userid
                               : "Loading"}
@@ -420,79 +436,81 @@ export default function Violation(props: RouteComponentProps) {
                             {studentViolation.type
                               ? studentViolation.type
                               : "Loading"}
-                          </label>
-                        </div>
-                      </IonItem>
+                          </label> */}
+                      </div>
                     </>
                   )}
-                </IonList>
-                <div className="container">
-                  <IonLabel>Choose Violation</IonLabel>
-                  <IonButton id="open-modal" expand="block">
-                    Choose Violation
-                  </IonButton>
                 </div>
-                <IonItem className="ion-item">
-                  <IonInput
-                    disabled={isExistingStudent}
-                    labelPlacement="stacked"
-                    label="Email Address"
-                    onInput={(event: any) =>
-                      setStudentViolation({
-                        ...studentViolation,
-                        email: (event.target as HTMLInputElement).value,
-                      })
-                    }
-                    value={studentViolation.email}
-                    placeholder="Email Address here..."
-                  ></IonInput>
-                </IonItem>
-                <IonItem className="ion-item">
-                  <IonSelect
-                    label="Departments"
-                    labelPlacement="stacked"
-                    onIonChange={(event: any) =>
-                      setStudentInfo({
-                        ...studentInfo,
-                        assigned_department: (event.target as HTMLInputElement)
-                          .value,
-                      })
-                    }
-                  >
-                    {departmentRows.map((department) => (
-                      <IonSelectOption
-                        key={department.name}
-                        value={department.name}
-                      >
-                        {department.name}
-                      </IonSelectOption>
-                    ))}
-                  </IonSelect>
-                </IonItem>
-                <IonItem className="ion-item">
-                  <IonInput
-                    labelPlacement="stacked"
-                    label="Year"
-                    value={studentInfo.year}
-                    onIonChange={(event: any) =>
-                      setStudentInfo({
-                        ...studentInfo,
-                        year: (event.target as HTMLInputElement).value,
-                      })
-                    }
-                    placeholder="Year level here..."
-                  ></IonInput>
-                </IonItem>
-                <IonButton
-                  expand="full"
-                  onClick={isExistingStudent ? handleUpdate : handleSave}
-                >
-                  {isExistingStudent
-                    ? "Update Student Violation"
-                    : "Create Student Violation"}
-                </IonButton>
+                <div>
+                  <div className="container">
+                    <IonLabel>Choose Violation</IonLabel>
+                    <IonButton id="open-modal" expand="block">
+                      SECTION 10
+                    </IonButton>
+                  </div>
+                  <IonItem className="ion-item">
+                    <IonInput
+                      disabled={isExistingStudent}
+                      labelPlacement="stacked"
+                      label="Email Address"
+                      onInput={(event: any) =>
+                        setStudentViolation({
+                          ...studentViolation,
+                          email: (event.target as HTMLInputElement).value,
+                        })
+                      }
+                      value={studentViolation.email}
+                      placeholder="Email Address here..."
+                    ></IonInput>
+                  </IonItem>
+                  <IonItem className="ion-item">
+                    <IonSelect
+                      label="Departments"
+                      labelPlacement="stacked"
+                      value={studentInfo.assigned_department}
+                      onIonChange={(event: any) =>
+                        setStudentInfo({
+                          ...studentInfo,
+                          assigned_department: (
+                            event.target as HTMLInputElement
+                          ).value,
+                        })
+                      }
+                    >
+                      {departmentRows.map((department) => (
+                        <IonSelectOption
+                          key={department.name}
+                          value={department.name}
+                        >
+                          {department.name}
+                        </IonSelectOption>
+                      ))}
+                    </IonSelect>
+                  </IonItem>
+                  <IonItem className="ion-item">
+                    <IonInput
+                      labelPlacement="stacked"
+                      label="Year"
+                      value={studentInfo.year}
+                      onIonChange={(event: any) =>
+                        setStudentInfo({
+                          ...studentInfo,
+                          year: (event.target as HTMLInputElement).value,
+                        })
+                      }
+                      placeholder="Year level here..."
+                    ></IonInput>
+                  </IonItem>
+                </div>
               </div>
-
+              <IonButton
+                expand="full"
+                onClick={isExistingStudent ? handleUpdate : handleSave}
+              >
+                {isExistingStudent
+                  ? "Update Student Violation"
+                  : "Create Student Violation"}
+              </IonButton>
               <IonModal
                 ref={modal}
                 trigger="open-modal"
@@ -502,7 +520,9 @@ export default function Violation(props: RouteComponentProps) {
                   <IonToolbar>
                     <IonTitle>Choose Violation to Attach</IonTitle>
                     <IonButtons slot="end">
-                      <IonButton onClick={() => dismiss()}>Close</IonButton>
+                      <IonButton color="primary" onClick={() => dismiss()}>
+                        Close
+                      </IonButton>
                     </IonButtons>
                   </IonToolbar>
                 </IonHeader>
