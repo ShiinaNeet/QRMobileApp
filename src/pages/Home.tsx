@@ -57,7 +57,7 @@ const Home = (props: RouteComponentProps) => {
         try {
           await DBR.initLicense({
             license:
-              "t0087pwAAAIdRCt4LlndkqKjyMgPegqJYMG8mXIbwZHRoFno7pKIBo/0uXepD8bcrtLuSsp2ieWXGjOO3lPxqXls20XvPdAdu0lPM45Oyf/wRqmUtNgBTNCJj;t0088pwAAADw2m60AYbw535GPUezmWwOxf4dUCvakKjiNxRmVqMFpxAb+Irp3aWTN9rsiJkyhtvoX/c5TopCUqwRlP6EKopQ7p0tzdR/v1PXjr0JztdouXMgibA==",
+              "DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzMzg0MjUyLVRYbFhaV0pRY205cSIsIm1haW5TZXJ2ZXJVUkwiOiJodHRwczovL21kbHMuZHluYW1zb2Z0b25saW5lLmNvbSIsIm9yZ2FuaXphdGlvbklEIjoiMTAzMzg0MjUyIiwic3RhbmRieVNlcnZlclVSTCI6Imh0dHBzOi8vc2Rscy5keW5hbXNvZnRvbmxpbmUuY29tIiwiY2hlY2tDb2RlIjoyNzczMTk4MH0=",
           }); //one-day trial
           setLicenseInitialized(true);
         } catch (error) {
