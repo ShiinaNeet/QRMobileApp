@@ -3,9 +3,12 @@ import { Preferences } from "@capacitor/preferences";
 import axios from "axios";
 
 import { setupAxiosInterceptors } from "./axios";
+import { key } from "ionicons/icons";
 
 interface AuthContextType {
+  userType: string;
   isAuthenticated: boolean;
+  setUserType: (userType: string) => void;
   login: (fullname: string, password: string) => Promise<ResponseObject>;
   logout: (callback: () => void) => Promise<void>;
 }
@@ -32,7 +35,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     status: "",
     message: "",
   });
-
+  const [userType, setUserType] = useState("");
   const login = async (
     username: string,
     password: string
@@ -51,7 +54,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       );
       if (response.data.status === "success") {
-        if (response.data.account_type === "SECURITY") {
+        if (
+          response.data.account_type === "SECURITY" ||
+          response.data.account_type === "PROFESSOR"
+        ) {
+          setUserType(response.data.account_type);
+          await Preferences.set({
+            key: "userType",
+            value: response.data.account_type,
+          });
           await Preferences.set({
             key: "accessToken",
             value: response.data.access_token,
@@ -102,12 +113,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setupAxiosInterceptors(accessToken);
         setIsAuthenticated(true);
       }
+      const { value: loggedInUserType } = await Preferences.get({
+        key: "userType",
+      });
+      setUserType(loggedInUserType || "");
     };
     checkAuth();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, login, logout, userType, setUserType }}
+    >
       {children}
     </AuthContext.Provider>
   );

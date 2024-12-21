@@ -83,7 +83,8 @@ export default function Login(props: RouteComponentProps) {
       registerUser.password === "" ||
       registerUser.firstname === "" ||
       registerUser.lastname === "" ||
-      registerUser.email === ""
+      registerUser.email === "" ||
+      registerUser.type === ""
     ) {
       setAlertMessage({
         isOpen: true,

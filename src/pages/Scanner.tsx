@@ -1,10 +1,22 @@
-import { IonAlert, IonContent, IonFab, IonFabButton, IonFabList, IonIcon, IonPage } from '@ionic/react';
-import QRCodeScanner from '../components/QRCodeScanner';
-import './Scanner.css';
-import { RouteComponentProps } from 'react-router';
-import { useEffect, useRef, useState } from 'react';
-import { ellipsisHorizontalOutline, flashlightOutline, closeOutline } from 'ionicons/icons';
-import { TextResult } from 'capacitor-plugin-dynamsoft-barcode-reader';
+import {
+  IonAlert,
+  IonContent,
+  IonFab,
+  IonFabButton,
+  IonFabList,
+  IonIcon,
+  IonPage,
+} from "@ionic/react";
+import QRCodeScanner from "../components/QRCodeScanner";
+import "./Scanner.css";
+import { RouteComponentProps } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import {
+  ellipsisHorizontalOutline,
+  flashlightOutline,
+  closeOutline,
+} from "ionicons/icons";
+import { TextResult } from "capacitor-plugin-dynamsoft-barcode-reader";
 
 const Scanner = (props: RouteComponentProps) => {
   const [viewBox, setViewBox] = useState("0 0 1080 1920");
@@ -15,10 +27,15 @@ const Scanner = (props: RouteComponentProps) => {
   const ionBackground = useRef("");
 
   useEffect(() => {
-    ionBackground.current = document.documentElement.style.getPropertyValue('--ion-background-color');
+    ionBackground.current = document.documentElement.style.getPropertyValue(
+      "--ion-background-color"
+    );
     return () => {
-      document.documentElement.style.setProperty('--ion-background-color', ionBackground.current);
-    }
+      document.documentElement.style.setProperty(
+        "--ion-background-color",
+        ionBackground.current
+      );
+    };
   }, []);
 
   useEffect(() => {
@@ -32,16 +49,25 @@ const Scanner = (props: RouteComponentProps) => {
 
   const toggleTorch = () => {
     setTorchOn(!torchOn);
-  }
+  };
 
   const goBack = () => {
-    document.documentElement.style.setProperty('--ion-background-color', ionBackground.current);
+    document.documentElement.style.setProperty(
+      "--ion-background-color",
+      ionBackground.current
+    );
     props.history.goBack();
-  }
+  };
 
-  const onPlayed = (result: { orientation: "LANDSCAPE" | "PORTRAIT", resolution: string }) => {
+  const onPlayed = (result: {
+    orientation: "LANDSCAPE" | "PORTRAIT";
+    resolution: string;
+  }) => {
     console.log(result);
-    document.documentElement.style.setProperty('--ion-background-color', 'transparent');
+    document.documentElement.style.setProperty(
+      "--ion-background-color",
+      "transparent"
+    );
     let width = parseInt(result.resolution.split("x")[0]);
     let height = parseInt(result.resolution.split("x")[1]);
     let box: string;
@@ -51,19 +77,22 @@ const Scanner = (props: RouteComponentProps) => {
       box = "0 0 " + width + " " + height;
     }
     setViewBox(box);
-  }
+  };
 
   const onScanned = (results: TextResult[]) => {
     // console.log(results);
     if (results.length > 0 && scanned.current === false) {
-      document.documentElement.style.setProperty('--ion-background-color', ionBackground.current);
+      document.documentElement.style.setProperty(
+        "--ion-background-color",
+        ionBackground.current
+      );
       scanned.current = true;
 
       setBarcodeResults(results);
       // Stop continuous scanning
       props.history.push("violation", { data: results[0].barcodeText });
     }
-  }
+  };
 
   const getPointsData = (lr: TextResult) => {
     let pointsData = lr.x1 + "," + lr.y1 + " ";
@@ -71,11 +100,11 @@ const Scanner = (props: RouteComponentProps) => {
     pointsData = pointsData + lr.x3 + "," + lr.y3 + " ";
     pointsData = pointsData + lr.x4 + "," + lr.y4;
     return pointsData;
-  }
+  };
 
   const getViewBoxWidth = () => {
     return parseInt(viewBox.split(" ")[2]);
-  }
+  };
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -94,18 +123,24 @@ const Scanner = (props: RouteComponentProps) => {
           xmlns="http://www.w3.org/2000/svg"
         >
           {barcodeResults.map((tr, idx) => (
-            <polygon key={"poly-" + idx} xmlns="http://www.w3.org/2000/svg"
+            <polygon
+              key={"poly-" + idx}
+              xmlns="http://www.w3.org/2000/svg"
               points={getPointsData(tr)}
               className="barcode-polygon"
             />
           ))}
           {barcodeResults.map((tr, idx) => (
-            <text key={"text-" + idx} xmlns="http://www.w3.org/2000/svg"
+            <text
+              key={"text-" + idx}
+              xmlns="http://www.w3.org/2000/svg"
               x={tr.x1}
               y={tr.y1}
               fill="red"
-              fontSize={getViewBoxWidth() / 460 * 10}
-            >{tr.barcodeText}</text>
+              fontSize={(getViewBoxWidth() / 460) * 10}
+            >
+              {tr.barcodeText}
+            </text>
           ))}
         </svg>
         <IonFab vertical="bottom" horizontal="start" slot="fixed">
@@ -116,7 +151,11 @@ const Scanner = (props: RouteComponentProps) => {
             <IonFabButton onClick={toggleTorch}>
               <IonIcon icon={flashlightOutline} />
             </IonFabButton>
-            <IonFabButton onClick={() => { goBack() }}>
+            <IonFabButton
+              onClick={() => {
+                goBack();
+              }}
+            >
               <IonIcon icon={closeOutline} />
             </IonFabButton>
           </IonFabList>
