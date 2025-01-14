@@ -1,3 +1,5 @@
+import { Capacitor } from "@capacitor/core";
+import { Preferences } from "@capacitor/preferences";
 import {
   IonButton,
   IonButtons,
@@ -48,14 +50,57 @@ export default function Violation(props: RouteComponentProps) {
     violations: [] as Violation[],
     year_and_department: "",
     assigned_department: "",
+    course: "",
+    term: "",
   });
   const [isExistingStudent, setIsExistingStudent] = useState(false);
   const [studentInfo, setStudentInfo] = useState({
+    term: "",
+    course: "",
     year: "",
     department: "",
     assigned_department: "",
   });
   const [violations, setViolations] = useState<Violation[]>([]);
+  const coursesList = [
+    "BS Information Technology",
+    "BS Computer Science",
+    "Doctor of Business Administration (DBA)",
+    "Master of Public Administration (MPA) (Thesis/Non-Thesis program)",
+    "Master of Business Administration (MBA) (Thesis/Non-Thesis program)",
+    "BS Accountancy",
+    "BS Accounting Management",
+    "BS Applied Economics",
+    "BS Business Administration Major in: Business Economics",
+    "BS Business Administration Major in: Financial Management",
+    "BS Business Administration Major in: Human Resource Development Management",
+    "BS Business Administration Major in: Marketing Management",
+    "BS Business Administration Major in: Operations Management",
+    "Associate in Accounting",
+    "Associate in Management",
+    "BS Hotel and Restaurant Management",
+    "BS Tourism Management",
+    "Associate in Hotel and Restaurant Management",
+    "Associate in Tourism Management",
+    "BA Public Administration",
+    "BS Customs Administration",
+    "BS Entrepreneurship",
+    "Doctor of Technology",
+    "Master of Technology",
+    "Bachelor of Industrial Technology (BIT 4 – years)",
+    "BS Nursing",
+    "BS Nutrition & Dietetics",
+  ];
+  const yearList = ["1st year", "2nd year", "3rd year", "4th year", "5th year"];
+
+  const schoolTermList = [
+    "First Semester",
+    "Second Semester",
+    "Third Semester",
+    "Fourth Semester",
+    "Fifth Semester",
+    "Summer Term",
+  ];
   const [refresh, setRefresh] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const modal = useRef<HTMLIonModalElement>(null);
@@ -76,7 +121,7 @@ export default function Violation(props: RouteComponentProps) {
       _id: undefined, // Remove the _id field
     })
   );
-  const handleSave = () => {
+  const handleSave = async () => {
     console.log(studentViolation);
 
     if (
@@ -84,32 +129,42 @@ export default function Violation(props: RouteComponentProps) {
       studentViolation.userid == "" ||
       studentViolation.violations.length == 0 ||
       studentInfo.assigned_department == "" ||
-      studentInfo.year == ""
+      studentInfo.assigned_department == undefined ||
+      studentInfo.year == undefined ||
+      studentInfo.year == "" ||
+      studentInfo.course == "" ||
+      studentInfo.course == undefined ||
+      studentInfo.term == "" ||
+      studentInfo.term == undefined
     ) {
       console.log("All fields are required");
       setAlertMessage("All fields are required");
       return;
     }
-    const yearDepartment = `${studentInfo.assigned_department} - ${studentInfo.year}`;
+    const yearDepartment = `${studentInfo.year}  - ${studentInfo.assigned_department}`;
 
+    const token = await Preferences.get({ key: "accessToken" });
     axios
       .post(
         `/user/create/student`,
         {
           srcode: studentViolation.srcode,
           userid: studentViolation.userid,
-          fullname: studentViolation.fullname,
           email: studentViolation.email,
-          type: "STUDENT",
+          fullname: studentViolation.fullname,
+          course: studentInfo.course,
+          term: studentInfo.term,
           year_and_department: yearDepartment,
-          assigned_department: studentInfo.assigned_department,
+          type: "STUDENT",
           violations: transformedViolations,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          assigned_department: studentInfo.assigned_department,
         }
+        // {
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //     Authorization: `Bearer ${token.value}`,
+        //   },
+        // }
       )
       .then((response) => {
         if (response.data.status === "success") {
@@ -142,7 +197,13 @@ export default function Violation(props: RouteComponentProps) {
       studentViolation.violations.length == 0 ||
       studentInfo.year == "" ||
       studentInfo.assigned_department == "" ||
-      studentInfo.assigned_department == undefined
+      studentInfo.assigned_department == undefined ||
+      studentInfo.year == undefined ||
+      studentInfo.year == "" ||
+      studentInfo.course == "" ||
+      studentInfo.course == undefined ||
+      studentInfo.term == "" ||
+      studentInfo.term == undefined
     ) {
       console.log("All fields are required");
       setIsLoading(false);
@@ -167,6 +228,8 @@ export default function Violation(props: RouteComponentProps) {
         {
           year_and_department: yearDepartment,
           violations: transformedViolations,
+          term: studentInfo.term,
+          course: studentInfo.course,
         },
         {
           headers: {
@@ -265,9 +328,13 @@ export default function Violation(props: RouteComponentProps) {
             year_and_department: response.data.year_and_department,
             assigned_department:
               response.data.year_and_department.split(" - ")[0],
+            course: response.data.course,
+            term: response.data.term,
           });
 
           setStudentInfo({
+            term: response.data.term,
+            course: response.data.course,
             department: response.data.year_and_department.split(" - ")[0],
             year: response.data.year_and_department.split(" - ")[1],
             assigned_department:
@@ -488,9 +555,47 @@ export default function Violation(props: RouteComponentProps) {
                     </IonSelect>
                   </IonItem>
                   <IonItem className="ion-item">
-                    <IonInput
+                    <IonSelect
+                      label="Course"
                       labelPlacement="stacked"
-                      label="Year"
+                      value={studentInfo.course}
+                      onIonChange={(event: any) =>
+                        setStudentInfo({
+                          ...studentInfo,
+                          course: (event.target as HTMLInputElement).value,
+                        })
+                      }
+                    >
+                      {coursesList.map((course) => (
+                        <IonSelectOption key={course} value={course}>
+                          {course}
+                        </IonSelectOption>
+                      ))}
+                    </IonSelect>
+                  </IonItem>
+                  <IonItem className="ion-item">
+                    <IonSelect
+                      label="Term"
+                      labelPlacement="stacked"
+                      value={studentInfo.term}
+                      onIonChange={(event: any) =>
+                        setStudentInfo({
+                          ...studentInfo,
+                          term: (event.target as HTMLInputElement).value,
+                        })
+                      }
+                    >
+                      {schoolTermList.map((term) => (
+                        <IonSelectOption key={term} value={term}>
+                          {term}
+                        </IonSelectOption>
+                      ))}
+                    </IonSelect>
+                  </IonItem>
+                  <IonItem className="ion-item">
+                    <IonSelect
+                      label="Year Level"
+                      labelPlacement="stacked"
                       value={studentInfo.year}
                       onIonChange={(event: any) =>
                         setStudentInfo({
@@ -498,8 +603,13 @@ export default function Violation(props: RouteComponentProps) {
                           year: (event.target as HTMLInputElement).value,
                         })
                       }
-                      placeholder="Year level here..."
-                    ></IonInput>
+                    >
+                      {yearList.map((year) => (
+                        <IonSelectOption key={year} value={year}>
+                          {year}
+                        </IonSelectOption>
+                      ))}
+                    </IonSelect>
                   </IonItem>
                 </div>
               </div>

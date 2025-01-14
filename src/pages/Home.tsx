@@ -59,7 +59,8 @@ const Home = (props: RouteComponentProps) => {
             license:
               // "DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzMzg0MjUyLVRYbFhaV0pRY205cSIsIm1haW5TZXJ2ZXJVUkwiOiJodHRwczovL21kbHMuZHluYW1zb2Z0b25saW5lLmNvbSIsIm9yZ2FuaXphdGlvbklEIjoiMTAzMzg0MjUyIiwic3RhbmRieVNlcnZlclVSTCI6Imh0dHBzOi8vc2Rscy5keW5hbXNvZnRvbmxpbmUuY29tIiwiY2hlY2tDb2RlIjoyNzczMTk4MH0=",
               // "t0087pwAAAIdRCt4LlndkqKjyMgPegqJYMG8mXIbwZHRoFno7pKIBo/0uXepD8bcrtLuSsp2ieWXGjOO3lPxqXls20XvPdAdu0lPM45Oyf/wRqmUtNgBTNCJj;t0088pwAAADw2m60AYbw535GPUezmWwOxf4dUCvakKjiNxRmVqMFpxAb+Irp3aWTN9rsiJkyhtvoX/c5TopCUqwRlP6EKopQ7p0tzdR/v1PXjr0JztdouXMgibA==",
-              "DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzMzg0MjUyLVRYbFFjbTlxIiwibWFpblNlcnZlclVSTCI6Imh0dHBzOi8vbWRscy5keW5hbXNvZnRvbmxpbmUuY29tIiwib3JnYW5pemF0aW9uSUQiOiIxMDMzODQyNTIiLCJzdGFuZGJ5U2VydmVyVVJMIjoiaHR0cHM6Ly9zZGxzLmR5bmFtc29mdG9ubGluZS5jb20iLCJjaGVja0NvZGUiOjE4MTQ1MjgzODV9",
+              "DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzMzg0MjUyLVRYbFhaV0pRY205cSIsIm1haW5TZXJ2ZXJVUkwiOiJodHRwczovL21kbHMuZHluYW1zb2Z0b25saW5lLmNvbSIsIm9yZ2FuaXphdGlvbklEIjoiMTAzMzg0MjUyIiwic3RhbmRieVNlcnZlclVSTCI6Imh0dHBzOi8vc2Rscy5keW5hbXNvZnRvbmxpbmUuY29tIiwiY2hlY2tDb2RlIjoyNzczMTk4MH0=",
+            // "t0086pwAAALcmmH6457ZAlYRo8JyoKL6KZ+N31ytUwTGPA8zfMJ/rEEdivfSjFsEU4Ek7dFOC/cz6KGoFMVW6ZpM9m0GkGPx1o08xjyn7xx8rdqAuNyAqIZo=;t0088pwAAAKq3a1yOALYMLGHo9eJSYO1rYiN0cKCDShCyzLYQb8ypR7mZEF0b95gewhmp4/X2JDz1bBJJZP9h8BdvUvgOj8Rl13RrreYxZf/4y4odqMsDKl8how==",
           }); //one-day trial
           setLicenseInitialized(true);
         } catch (error) {
