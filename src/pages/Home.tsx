@@ -58,9 +58,7 @@ const Home = (props: RouteComponentProps) => {
           await DBR.initLicense({
             license:
               // "DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzMzg0MjUyLVRYbFhaV0pRY205cSIsIm1haW5TZXJ2ZXJVUkwiOiJodHRwczovL21kbHMuZHluYW1zb2Z0b25saW5lLmNvbSIsIm9yZ2FuaXphdGlvbklEIjoiMTAzMzg0MjUyIiwic3RhbmRieVNlcnZlclVSTCI6Imh0dHBzOi8vc2Rscy5keW5hbXNvZnRvbmxpbmUuY29tIiwiY2hlY2tDb2RlIjoyNzczMTk4MH0=",
-              // "t0087pwAAAIdRCt4LlndkqKjyMgPegqJYMG8mXIbwZHRoFno7pKIBo/0uXepD8bcrtLuSsp2ieWXGjOO3lPxqXls20XvPdAdu0lPM45Oyf/wRqmUtNgBTNCJj;t0088pwAAADw2m60AYbw535GPUezmWwOxf4dUCvakKjiNxRmVqMFpxAb+Irp3aWTN9rsiJkyhtvoX/c5TopCUqwRlP6EKopQ7p0tzdR/v1PXjr0JztdouXMgibA==",
-              "DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzMzg0MjUyLVRYbFhaV0pRY205cSIsIm1haW5TZXJ2ZXJVUkwiOiJodHRwczovL21kbHMuZHluYW1zb2Z0b25saW5lLmNvbSIsIm9yZ2FuaXphdGlvbklEIjoiMTAzMzg0MjUyIiwic3RhbmRieVNlcnZlclVSTCI6Imh0dHBzOi8vc2Rscy5keW5hbXNvZnRvbmxpbmUuY29tIiwiY2hlY2tDb2RlIjoyNzczMTk4MH0=",
-            // "t0086pwAAALcmmH6457ZAlYRo8JyoKL6KZ+N31ytUwTGPA8zfMJ/rEEdivfSjFsEU4Ek7dFOC/cz6KGoFMVW6ZpM9m0GkGPx1o08xjyn7xx8rdqAuNyAqIZo=;t0088pwAAAKq3a1yOALYMLGHo9eJSYO1rYiN0cKCDShCyzLYQb8ypR7mZEF0b95gewhmp4/X2JDz1bBJJZP9h8BdvUvgOj8Rl13RrreYxZf/4y4odqMsDKl8how==",
+              "t0088pwAAAAiAr+NlWR7S/+DH9Y6FLbNQQU8qWfCmzsUuHJYkjgw5kVCA01esKMvlo98mjMPe3aVuCtwA47OyjNP0omPlBpiqL/kJ5nJ/s2/80SiHmccNIWUhqQ==;t0089pwAAAI265LEngci+muyLq45GrW7s+1OBjVAjSZZgnvY+TjTM3JyHWVVrs3GTWj5MYR9zsRJsWNHP3hsPJmibtVsOrPfSWf0wW+M436yNP0r4bnbEAyuaIbI=",
           }); //one-day trial
           setLicenseInitialized(true);
         } catch (error) {
@@ -89,7 +87,7 @@ const Home = (props: RouteComponentProps) => {
 
   const fetchData = async () => {
     axios
-      .get("/violation/paginated", {
+      .get("/violation", {
         params: {
           skip: 0,
           limit: 100,
@@ -99,7 +97,7 @@ const Home = (props: RouteComponentProps) => {
         },
       })
       .then((response) => {
-        if (response.data.success === true) {
+        if (response.data.status === "success") {
           console.log("Data fetched successfully");
           // setViolations(response.data.total);
         } else {
