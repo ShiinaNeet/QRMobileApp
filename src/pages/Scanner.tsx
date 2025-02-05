@@ -63,7 +63,7 @@ const Scanner = (props: RouteComponentProps) => {
     orientation: "LANDSCAPE" | "PORTRAIT";
     resolution: string;
   }) => {
-    console.log(result);
+    // console.log(result);
     document.documentElement.style.setProperty(
       "--ion-background-color",
       "transparent"
@@ -80,7 +80,6 @@ const Scanner = (props: RouteComponentProps) => {
   };
 
   const onScanned = (results: TextResult[]) => {
-    // console.log(results);
     if (results.length > 0 && scanned.current === false) {
       document.documentElement.style.setProperty(
         "--ion-background-color",
