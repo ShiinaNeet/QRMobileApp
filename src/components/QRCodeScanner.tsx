@@ -1,16 +1,21 @@
-import { MutableRefObject, useEffect, useRef, useState } from 'react';
-import './QRCodeScanner.css';
-import { DBR, TextResult } from 'capacitor-plugin-dynamsoft-barcode-reader';
-import { CameraPreview } from 'capacitor-plugin-camera';
-import { Capacitor, PluginListenerHandle } from '@capacitor/core';
+import { MutableRefObject, useEffect, useRef, useState } from "react";
+import "./QRCodeScanner.css";
+import { DBR, TextResult } from "capacitor-plugin-dynamsoft-barcode-reader";
+import { CameraPreview } from "capacitor-plugin-camera";
+import { Capacitor, PluginListenerHandle } from "@capacitor/core";
 
 export interface QRCodeScannerProps {
   torchOn?: boolean;
   onScanned?: (results: TextResult[]) => void;
-  onPlayed?: (result: { orientation: "LANDSCAPE" | "PORTRAIT", resolution: string }) => void;
+  onPlayed?: (result: {
+    orientation: "LANDSCAPE" | "PORTRAIT";
+    resolution: string;
+  }) => void;
 }
 
-const QRCodeScanner: React.FC<QRCodeScannerProps> = (props: QRCodeScannerProps) => {
+const QRCodeScanner: React.FC<QRCodeScannerProps> = (
+  props: QRCodeScannerProps
+) => {
   const container: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const decoding = useRef(false);
   const interval = useRef<any>();
@@ -29,17 +34,24 @@ const QRCodeScanner: React.FC<QRCodeScannerProps> = (props: QRCodeScannerProps) 
       if (onPlayedListener.current) {
         onPlayedListener.current.remove();
       }
-      onPlayedListener.current = await CameraPreview.addListener("onPlayed", async () => {
-        startDecoding();
-        const orientation = (await CameraPreview.getOrientation()).orientation;
-        const resolution = (await CameraPreview.getResolution()).resolution;
-        if (props.onPlayed) {
-          props.onPlayed({ orientation: orientation, resolution: resolution });
+      onPlayedListener.current = await CameraPreview.addListener(
+        "onPlayed",
+        async () => {
+          startDecoding();
+          const orientation = (await CameraPreview.getOrientation())
+            .orientation;
+          const resolution = (await CameraPreview.getResolution()).resolution;
+          if (props.onPlayed) {
+            props.onPlayed({
+              orientation: orientation,
+              resolution: resolution,
+            });
+          }
         }
-      });
+      );
       await CameraPreview.startCamera();
       setInitialized(true);
-    }
+    };
     init();
     return () => {
       console.log("unmount and stop scan");
@@ -48,17 +60,17 @@ const QRCodeScanner: React.FC<QRCodeScannerProps> = (props: QRCodeScannerProps) 
       if (onPlayedListener.current) {
         onPlayedListener.current.remove();
       }
-    }
+    };
   }, []);
 
   const startDecoding = () => {
     stopDecoding();
     interval.current = setInterval(captureAndDecode, 100);
-  }
+  };
 
   const stopDecoding = () => {
     clearInterval(interval.current);
-  }
+  };
 
   const captureAndDecode = async () => {
     if (decoding.current === true) {
@@ -80,16 +92,16 @@ const QRCodeScanner: React.FC<QRCodeScannerProps> = (props: QRCodeScannerProps) 
         props.onScanned(results);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
     decoding.current = false;
-  }
+  };
 
   const readDataURL = async (dataURL: string) => {
     let response = await DBR.decode({ source: dataURL });
     let results = response.results;
     return results;
-  }
+  };
 
   useEffect(() => {
     if (initialized) {
@@ -103,9 +115,7 @@ const QRCodeScanner: React.FC<QRCodeScannerProps> = (props: QRCodeScannerProps) 
 
   return (
     <>
-      {!initialized && (
-        <div>Initializing...</div>
-      )}
+      {!initialized && <div>Initializing...</div>}
       <div ref={container}>
         <div className="dce-video-container"></div>
       </div>
