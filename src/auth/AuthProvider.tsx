@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   ): Promise<ResponseObject> => {
     try {
       const response = await axios.post(
-        "https://student-discipline-api-fmm2.onrender.com/auth/login",
+        "auth/login",
         {
           username,
           password,
