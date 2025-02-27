@@ -32,43 +32,56 @@ const Home = (props: RouteComponentProps) => {
   const [continuousScan, setContinuousScan] = useState(false);
   const [barcodeResults, setBarcodeResults] = useState([] as TextResult[]);
   const [licenseInitialized, setLicenseInitialized] = useState(false);
-
-  const [studentViolation, setStudentViolation] = useState({
-    id: "",
-    fullname: "",
-    violation: "",
-  });
-
-  const violationData = [
-    { violation: "Plagiarism" },
-    { violation: "Cheating" },
-    { violation: "Long Hair" },
-  ];
-
+  const [devKey, setDevKey] = useState(
+    "DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzMjc5NzQ1LVRYbFhaV0pRY205cSIsIm1haW5TZXJ2ZXJVUkwiOiJodHRwczovL21kbHMuZHluYW1zb2Z0b25saW5lLmNvbSIsIm9yZ2FuaXphdGlvbklEIjoiMTAzMjc5NzQ1Iiwic3RhbmRieVNlcnZlclVSTCI6Imh0dHBzOi8vc2Rscy5keW5hbXNvZnRvbmxpbmUuY29tIiwiY2hlY2tDb2RlIjotOTc5OTk2MDIwfQ=="
+  );
+  const [apiKey, setAPIKey] = useState(
+    "t0086pwAAAEGdeMM784HB+F0yUSx7hxIuaFcKMGjOuq2cqv7rLWg5jWbP9kD8nidRbiswg5lOAF4Mkcd24K947CPLSWAbtJ4h7mIcR3n9+JPIWdB8AVKaIis=;t0087pwAAAE5BRoAFSsEYLmOEII/LsrzM7G5W+xi5i5qJj2JQMQkxMqcCsRJoiLg+ncsP7V44fG7jbIcINWBJH4twc6uwEk9UH12t+ZzltfGXUYqgZQdikiI9"
+  );
   const handleOption = (e: any) => {
     let value = e.detail.value;
     let checked = e.detail.checked;
     setContinuousScan(checked);
   };
+
+  const fetchAPIKey = async () => {
+    axios
+      .get("/qr", {
+        headers: {},
+        params: {
+          skip: 0,
+          limit: 100,
+        },
+      })
+      .then((response) => {
+        if (response.data.status === "success") {
+          setAPIKey(response.data.data[0]);
+        } else {
+          console.log("Failed to fetch data");
+        }
+      })
+      .catch((error) => {
+        console.warn("There was an error fetching the data!", error);
+      });
+  };
+
   useEffect(() => {
-    if (initLicenseTried.current === false) {
-      initLicenseTried.current = true;
-      const initLicense = async () => {
+    const fetchAndInitLicense = async () => {
+      // await fetchAPIKey();
+      if (initLicenseTried.current === false) {
+        initLicenseTried.current = true;
         try {
+          console.log("API Key: ", apiKey ? apiKey : devKey);
           await DBR.initLicense({
-            license:
-              // "DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzMzg0MjUyLVRYbFhaV0pRY205cSIsIm1haW5TZXJ2ZXJVUkwiOiJodHRwczovL21kbHMuZHluYW1zb2Z0b25saW5lLmNvbSIsIm9yZ2FuaXphdGlvbklEIjoiMTAzMzg0MjUyIiwic3RhbmRieVNlcnZlclVSTCI6Imh0dHBzOi8vc2Rscy5keW5hbXNvZnRvbmxpbmUuY29tIiwiY2hlY2tDb2RlIjoyNzczMTk4MH0=",
-              "t0088pwAAAAiAr+NlWR7S/+DH9Y6FLbNQQU8qWfCmzsUuHJYkjgw5kVCA01esKMvlo98mjMPe3aVuCtwA47OyjNP0omPlBpiqL/kJ5nJ/s2/80SiHmccNIWUhqQ==;t0089pwAAAI265LEngci+muyLq45GrW7s+1OBjVAjSZZgnvY+TjTM3JyHWVVrs3GTWj5MYR9zsRJsWNHP3hsPJmibtVsOrPfSWf0wW+M436yNP0r4bnbEAyuaIbI=",
-          }); //one-day trial
+            license: apiKey ? apiKey : devKey,
+          });
           setLicenseInitialized(true);
         } catch (error) {
-          // alert(error);
           console.error(error);
         }
-      };
-      initLicense();
-    }
-    initLicenseTried.current = true;
+      }
+    };
+    fetchAndInitLicense();
   }, []);
   const startScan = () => {
     props.history.push("scanner", { continuousScan: continuousScan });
