@@ -35,9 +35,7 @@ const Home = (props: RouteComponentProps) => {
   const [devKey, setDevKey] = useState(
     "DLS2eyJoYW5kc2hha2VDb2RlIjoiMTAzMjc5NzQ1LVRYbFhaV0pRY205cSIsIm1haW5TZXJ2ZXJVUkwiOiJodHRwczovL21kbHMuZHluYW1zb2Z0b25saW5lLmNvbSIsIm9yZ2FuaXphdGlvbklEIjoiMTAzMjc5NzQ1Iiwic3RhbmRieVNlcnZlclVSTCI6Imh0dHBzOi8vc2Rscy5keW5hbXNvZnRvbmxpbmUuY29tIiwiY2hlY2tDb2RlIjotOTc5OTk2MDIwfQ=="
   );
-  const [apiKey, setAPIKey] = useState(
-    "t0086pwAAAEGdeMM784HB+F0yUSx7hxIuaFcKMGjOuq2cqv7rLWg5jWbP9kD8nidRbiswg5lOAF4Mkcd24K947CPLSWAbtJ4h7mIcR3n9+JPIWdB8AVKaIis=;t0087pwAAAE5BRoAFSsEYLmOEII/LsrzM7G5W+xi5i5qJj2JQMQkxMqcCsRJoiLg+ncsP7V44fG7jbIcINWBJH4twc6uwEk9UH12t+ZzltfGXUYqgZQdikiI9"
-  );
+  const [apiKey, setAPIKey] = useState("");
   const handleOption = (e: any) => {
     let value = e.detail.value;
     let checked = e.detail.checked;
@@ -55,7 +53,7 @@ const Home = (props: RouteComponentProps) => {
       })
       .then((response) => {
         if (response.data.status === "success") {
-          setAPIKey(response.data.data[0]);
+          setAPIKey(response.data.data[0].api_key);
         } else {
           console.log("Failed to fetch data");
         }
@@ -64,25 +62,23 @@ const Home = (props: RouteComponentProps) => {
         console.warn("There was an error fetching the data!", error);
       });
   };
-
   useEffect(() => {
-    const fetchAndInitLicense = async () => {
-      // await fetchAPIKey();
-      if (initLicenseTried.current === false) {
-        initLicenseTried.current = true;
+    fetchAPIKey(); // Fetch API key on mount
+  }, []);
+  useEffect(() => {
+    if (apiKey && initLicenseTried.current === false) {
+      initLicenseTried.current = true;
+      (async () => {
         try {
-          console.log("API Key: ", apiKey ? apiKey : devKey);
-          await DBR.initLicense({
-            license: apiKey ? apiKey : devKey,
-          });
+          console.log("API Key: ", apiKey);
+          await DBR.initLicense({ license: apiKey });
           setLicenseInitialized(true);
         } catch (error) {
-          console.error(error);
+          console.error("License initialization failed", error);
         }
-      }
-    };
-    fetchAndInitLicense();
-  }, []);
+      })();
+    }
+  }, [apiKey]);
   const startScan = () => {
     props.history.push("scanner", { continuousScan: continuousScan });
   };

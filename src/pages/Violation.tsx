@@ -45,6 +45,7 @@ type Violation = {
   description: string;
   reported_by?: string;
   date_committed?: string;
+  sem_committed?: string;
 };
 type Program = {
   id: string;
@@ -52,6 +53,10 @@ type Program = {
   department_id: string;
 };
 
+type Term = {
+  number: string;
+  name: string;
+};
 export default function Violation(props: RouteComponentProps) {
   const propsdata = props.location.state as { data: string };
   const [alertMessage, setAlertMessage] = useState("");
@@ -87,46 +92,19 @@ export default function Violation(props: RouteComponentProps) {
     assigned_department: "",
   });
   const [violations, setViolations] = useState<ViolationResponse[]>([]);
-  const coursesList = [
-    "BS Information Technology",
-    "BS Computer Science",
-    "Doctor of Business Administration (DBA)",
-    "Master of Public Administration (MPA) (Thesis/Non-Thesis program)",
-    "Master of Business Administration (MBA) (Thesis/Non-Thesis program)",
-    "BS Accountancy",
-    "BS Accounting Management",
-    "BS Applied Economics",
-    "BS Business Administration Major in: Business Economics",
-    "BS Business Administration Major in: Financial Management",
-    "BS Business Administration Major in: Human Resource Development Management",
-    "BS Business Administration Major in: Marketing Management",
-    "BS Business Administration Major in: Operations Management",
-    "Associate in Accounting",
-    "Associate in Management",
-    "BS Hotel and Restaurant Management",
-    "BS Tourism Management",
-    "Associate in Hotel and Restaurant Management",
-    "Associate in Tourism Management",
-    "BA Public Administration",
-    "BS Customs Administration",
-    "BS Entrepreneurship",
-    "Doctor of Technology",
-    "Master of Technology",
-    "Bachelor of Industrial Technology (BIT 4 – years)",
-    "BS Nursing",
-    "BS Nutrition & Dietetics",
-  ];
+
   const yearList = ["1st year", "2nd year", "3rd year", "4th year", "5th year"];
   const [programList, setProgramList] = useState<Program[]>([]);
   const [filteredPrograms, setFilteredPrograms] = useState<Program[]>([]);
-  const schoolTermList = [
-    "First Semester",
-    "Second Semester",
-    "Third Semester",
-    "Fourth Semester",
-    "Fifth Semester",
-    "Summer Term",
-  ];
+  const [termList, setTermList] = useState<Term[]>([]);
+  // const schoolTermList = [
+  //   "First Semester",
+  //   "Second Semester",
+  //   "Third Semester",
+  //   "Fourth Semester",
+  //   "Fifth Semester",
+  //   "Summer Term",
+  // ];
   const [refresh, setRefresh] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const modal = useRef<HTMLIonModalElement>(null);
@@ -141,12 +119,18 @@ export default function Violation(props: RouteComponentProps) {
     modal.current?.dismiss();
   }
   const transformedViolations = studentViolation.violations.map((violation) => {
+    const termsID = termList.find(
+      (term) => term.name === studentInfo.term
+    )?.number;
     return {
       code: violation.code,
       date_committed: violation.date_committed
         ? violation.date_committed
         : new Date().toISOString(),
       reported_by: violation.reported_by || undefined,
+      sem_committed: violation.sem_committed
+        ? violation.sem_committed
+        : termsID,
     };
   });
   const handleSave = async () => {
@@ -490,6 +474,7 @@ export default function Violation(props: RouteComponentProps) {
     fetchData();
     fetchDepartments();
     fetchPrograms();
+    fetchTerms();
   }, [propsdata, refresh]);
   // useEffect(() => {
   //   fetchPrograms();
@@ -533,6 +518,28 @@ export default function Violation(props: RouteComponentProps) {
         if (response.data.status === "success") {
           // console.log("Data fetched successfully");
           setProgramList(response.data.data);
+        } else {
+          console.log("Failed to fetch data");
+        }
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the data!", error);
+      });
+  };
+  const fetchTerms = async () => {
+    axios
+      .get("/term", {
+        params: {
+          skip: 0,
+          limit: 100,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => {
+        if (response.data.status === "success") {
+          setTermList(response.data.data);
         } else {
           console.log("Failed to fetch data");
         }
@@ -742,9 +749,9 @@ export default function Violation(props: RouteComponentProps) {
                         })
                       }
                     >
-                      {schoolTermList.map((term) => (
-                        <IonSelectOption key={term} value={term}>
-                          {term}
+                      {termList.map((term) => (
+                        <IonSelectOption key={term.number} value={term.name}>
+                          {term.name}
                         </IonSelectOption>
                       ))}
                     </IonSelect>
