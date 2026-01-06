@@ -1,171 +1,84 @@
 import {
-  IonAlert,
   IonContent,
   IonFab,
   IonFabButton,
   IonFabList,
   IonIcon,
   IonPage,
+  IonToast,
 } from "@ionic/react";
+
 import QRCodeScanner from "../components/QRCodeScanner";
 import "./Scanner.css";
 import { RouteComponentProps } from "react-router";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   ellipsisHorizontalOutline,
   flashlightOutline,
   closeOutline,
 } from "ionicons/icons";
-import { TextResult } from "capacitor-plugin-dynamsoft-barcode-reader";
+import { BarcodeScanner } from "@capacitor-community/barcode-scanner";
 
 const Scanner = (props: RouteComponentProps) => {
-  const [viewBox, setViewBox] = useState("0 0 1080 1920");
-  const continuousScan = useRef(true); // Set continuous scan to true by default
-  const scanned = useRef(false);
-  const [torchOn, setTorchOn] = useState(false);
-  const [barcodeResults, setBarcodeResults] = useState([] as TextResult[]);
   const ionBackground = useRef("");
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
 
-  useEffect(() => {
-    ionBackground.current = document.documentElement.style.getPropertyValue(
-      "--ion-background-color"
-    );
-    return () => {
-      document.documentElement.style.setProperty(
-        "--ion-background-color",
-        ionBackground.current
-      );
-    };
-  }, []);
-
-  useEffect(() => {
-    const state = props.location.state as { continuousScan?: boolean };
-    if (state) {
-      if (state.continuousScan) {
-        continuousScan.current = state.continuousScan;
-      }
+  const toggleTorch = async () => {
+    const newTorchState = !torchOn;
+    setTorchOn(newTorchState);
+    try {
+      await BarcodeScanner.enableTorch();
+    } catch (e) {
+      console.warn("Torch toggle failed", e);
     }
-  }, [props.location.state]);
-
-  const toggleTorch = () => {
-    setTorchOn(!torchOn);
   };
 
-  const goBack = () => {
-    document.documentElement.style.setProperty(
-      "--ion-background-color",
-      ionBackground.current
-    );
+  const goBack = async () => {
+    await BarcodeScanner.stopScan();
+    document.body.classList.remove("scanner-active");
     props.history.goBack();
   };
 
-  const onPlayed = (result: {
-    orientation: "LANDSCAPE" | "PORTRAIT";
-    resolution: string;
-  }) => {
-    // console.log(result);
-    document.documentElement.style.setProperty(
-      "--ion-background-color",
-      "transparent"
-    );
-    let width = parseInt(result.resolution.split("x")[0]);
-    let height = parseInt(result.resolution.split("x")[1]);
-    let box: string;
-    if (result.orientation === "PORTRAIT") {
-      box = "0 0 " + height + " " + width;
-    } else {
-      box = "0 0 " + width + " " + height;
-    }
-    setViewBox(box);
+  const onScanned = (result: string) => {
+    // Navigate to violation page with scanned data
+    props.history.push("violation", { data: result });
   };
 
-  const onScanned = (results: TextResult[]) => {
-    if (results.length > 0 && scanned.current === false) {
-      document.documentElement.style.setProperty(
-        "--ion-background-color",
-        ionBackground.current
-      );
-      scanned.current = true;
-
-      setBarcodeResults(results);
-      // Stop continuous scanning
-      props.history.push("violation", { data: results[0].barcodeText });
-    }
+  const onCameraError = (error: any) => {
+    console.error("Camera error:", error);
+    setToastMessage("Camera Error: " + (error.message || JSON.stringify(error)));
+    setShowToast(true);
   };
-
-  const getPointsData = (lr: TextResult) => {
-    let pointsData = lr.x1 + "," + lr.y1 + " ";
-    pointsData = pointsData + lr.x2 + "," + lr.y2 + " ";
-    pointsData = pointsData + lr.x3 + "," + lr.y3 + " ";
-    pointsData = pointsData + lr.x4 + "," + lr.y4;
-    return pointsData;
-  };
-
-  const getViewBoxWidth = () => {
-    return parseInt(viewBox.split(" ")[2]);
-  };
-
-  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <IonPage>
       <IonContent fullscreen>
         <QRCodeScanner
-          torchOn={torchOn}
-          onPlayed={onPlayed}
           onScanned={onScanned}
+          onError={onCameraError}
         />
-        <svg
-          viewBox={viewBox}
-          preserveAspectRatio="xMidYMid slice"
-          className="overlay"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {barcodeResults.map((tr, idx) => (
-            <polygon
-              key={"poly-" + idx}
-              xmlns="http://www.w3.org/2000/svg"
-              points={getPointsData(tr)}
-              className="barcode-polygon"
-            />
-          ))}
-          {barcodeResults.map((tr, idx) => (
-            <text
-              key={"text-" + idx}
-              xmlns="http://www.w3.org/2000/svg"
-              x={tr.x1}
-              y={tr.y1}
-              fill="red"
-              fontSize={(getViewBoxWidth() / 460) * 10}
-            >
-              {tr.barcodeText}
-            </text>
-          ))}
-        </svg>
         <IonFab vertical="bottom" horizontal="start" slot="fixed">
           <IonFabButton>
-            <IonIcon icon={ellipsisHorizontalOutline} />
+            <IonIcon icon={ellipsisHorizontalOutline} style={{ color: "white" }} />
           </IonFabButton>
           <IonFabList side="top">
             <IonFabButton onClick={toggleTorch}>
-              <IonIcon icon={flashlightOutline} />
+              <IonIcon icon={flashlightOutline} style={{ color: "white" }} />
             </IonFabButton>
-            <IonFabButton
-              onClick={() => {
-                goBack();
-              }}
-            >
-              <IonIcon icon={closeOutline} />
+            <IonFabButton onClick={goBack}>
+              <IonIcon icon={closeOutline} style={{ color: "white" }} />
             </IonFabButton>
           </IonFabList>
         </IonFab>
+        <IonToast
+          isOpen={showToast}
+          onDidDismiss={() => setShowToast(false)}
+          message={toastMessage}
+          duration={3000}
+        />
       </IonContent>
-      <IonAlert
-        isOpen={isOpen}
-        header="Decoded Results"
-        message={JSON.stringify(barcodeResults)}
-        onDidDismiss={() => setIsOpen(false)}
-      ></IonAlert>
     </IonPage>
   );
 };

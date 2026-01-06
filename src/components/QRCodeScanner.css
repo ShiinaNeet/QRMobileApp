@@ -1,0 +1,16 @@
+/* Scanner active state - makes body transparent for camera */
+body.scanner-active {
+  background: transparent !important;
+}
+
+body.scanner-active ion-content {
+  --background: transparent !important;
+}
+
+.scanner-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}

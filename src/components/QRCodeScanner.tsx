@@ -1,124 +1,72 @@
-import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./QRCodeScanner.css";
-import { DBR, TextResult } from "capacitor-plugin-dynamsoft-barcode-reader";
-import { CameraPreview } from "capacitor-plugin-camera";
-import { Capacitor, PluginListenerHandle } from "@capacitor/core";
+import { BarcodeScanner } from "@capacitor-community/barcode-scanner";
 
 export interface QRCodeScannerProps {
-  torchOn?: boolean;
-  onScanned?: (results: TextResult[]) => void;
-  onPlayed?: (result: {
-    orientation: "LANDSCAPE" | "PORTRAIT";
-    resolution: string;
-  }) => void;
+  onScanned?: (result: string) => void;
+  onError?: (error: any) => void;
 }
 
 const QRCodeScanner: React.FC<QRCodeScannerProps> = (
   props: QRCodeScannerProps
 ) => {
-  const container: MutableRefObject<HTMLDivElement | null> = useRef(null);
-  const decoding = useRef(false);
-  const interval = useRef<any>();
-  const onPlayedListener = useRef<PluginListenerHandle | undefined>();
-  const [initialized, setInitialized] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const scannerActive = useRef(false);
 
   useEffect(() => {
-    const init = async () => {
-      if (container.current && Capacitor.isNativePlatform() === false) {
-        await CameraPreview.setElement(container.current);
-      }
-      await CameraPreview.initialize();
-      await CameraPreview.requestCameraPermission();
-      await DBR.initialize();
-      console.log("QRCodeScanner mounted");
-      if (onPlayedListener.current) {
-        onPlayedListener.current.remove();
-      }
-      onPlayedListener.current = await CameraPreview.addListener(
-        "onPlayed",
-        async () => {
-          startDecoding();
-          const orientation = (await CameraPreview.getOrientation())
-            .orientation;
-          const resolution = (await CameraPreview.getResolution()).resolution;
-          if (props.onPlayed) {
-            props.onPlayed({
-              orientation: orientation,
-              resolution: resolution,
-            });
+    const startScan = async () => {
+      try {
+        // Check/request camera permission
+        const status = await BarcodeScanner.checkPermission({ force: true });
+        if (!status.granted) {
+          if (props.onError) {
+            props.onError("Camera permission denied");
+          }
+          return;
+        }
+
+        // Make background transparent for camera view
+        BarcodeScanner.hideBackground();
+        document.body.classList.add("scanner-active");
+        setScanning(true);
+        scannerActive.current = true;
+
+        // Start scanning
+        const result = await BarcodeScanner.startScan();
+
+        // Scan complete - result received
+        if (result.hasContent && result.content) {
+          if (props.onScanned) {
+            props.onScanned(result.content);
           }
         }
-      );
-      await CameraPreview.startCamera();
-      setInitialized(true);
+      } catch (error) {
+        console.error("Scanner error:", error);
+        if (props.onError) {
+          props.onError(error);
+        }
+      }
     };
-    init();
+
+    startScan();
+
     return () => {
-      console.log("unmount and stop scan");
-      stopDecoding();
-      CameraPreview.stopCamera();
-      if (onPlayedListener.current) {
-        onPlayedListener.current.remove();
+      // Cleanup on unmount
+      if (scannerActive.current) {
+        BarcodeScanner.stopScan();
+        BarcodeScanner.showBackground();
+        document.body.classList.remove("scanner-active");
+        scannerActive.current = false;
       }
     };
   }, []);
 
-  const startDecoding = () => {
-    stopDecoding();
-    interval.current = setInterval(captureAndDecode, 100);
-  };
-
-  const stopDecoding = () => {
-    clearInterval(interval.current);
-  };
-
-  const captureAndDecode = async () => {
-    if (decoding.current === true) {
-      return;
-    }
-    let results = [];
-    let dataURL;
-    decoding.current = true;
-    try {
-      if (Capacitor.isNativePlatform()) {
-        await CameraPreview.saveFrame();
-        results = (await DBR.decodeBitmap({})).results;
-      } else {
-        let frame = await CameraPreview.takeSnapshot({ quality: 50 });
-        dataURL = "data:image/jpeg;base64," + frame.base64;
-        results = await readDataURL(dataURL);
-      }
-      if (props.onScanned) {
-        props.onScanned(results);
-      }
-    } catch (error) {
-      // console.log(error);
-    }
-    decoding.current = false;
-  };
-
-  const readDataURL = async (dataURL: string) => {
-    let response = await DBR.decode({ source: dataURL });
-    let results = response.results;
-    return results;
-  };
-
-  useEffect(() => {
-    if (initialized) {
-      if (props.torchOn === true) {
-        CameraPreview.toggleTorch({ on: true });
-      } else {
-        CameraPreview.toggleTorch({ on: false });
-      }
-    }
-  }, [props.torchOn]);
-
   return (
     <>
-      {!initialized && <div>Initializing...</div>}
-      <div ref={container}>
-        <div className="dce-video-container"></div>
-      </div>
+      {!scanning && <div>Initializing scanner...</div>}
+      {/* The camera view is rendered by the native plugin, 
+          we just need a transparent container */}
+      <div className="scanner-container"></div>
     </>
   );
 };

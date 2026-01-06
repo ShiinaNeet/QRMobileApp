@@ -131,6 +131,13 @@ ion-button {
   --color: var(--ion-color-primary-contrast);
 }
 
+/* Ensure icons in buttons and fabs are white (contrast), ignoring the global rule */
+/*ion-button ion-icon,
+ion-fab-button ion-icon {
+  color: var(--ion-color-primary-contrast) !important;
+}*/
+
+
 .container-center {
   display: flex;
   flex-direction: column;
