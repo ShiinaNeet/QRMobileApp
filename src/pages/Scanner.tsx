@@ -17,7 +17,7 @@ import {
   flashlightOutline,
   closeOutline,
 } from "ionicons/icons";
-import { BarcodeScanner } from "@capacitor-community/barcode-scanner";
+import { BarcodeScanner } from "@capacitor-mlkit/barcode-scanning";
 
 const Scanner = (props: RouteComponentProps) => {
   const ionBackground = useRef("");
@@ -29,7 +29,7 @@ const Scanner = (props: RouteComponentProps) => {
     const newTorchState = !torchOn;
     setTorchOn(newTorchState);
     try {
-      await BarcodeScanner.enableTorch();
+      await BarcodeScanner.toggleTorch();
     } catch (e) {
       console.warn("Torch toggle failed", e);
     }
@@ -37,6 +37,7 @@ const Scanner = (props: RouteComponentProps) => {
 
   const goBack = async () => {
     await BarcodeScanner.stopScan();
+    await BarcodeScanner.removeAllListeners();
     document.body.classList.remove("scanner-active");
     props.history.goBack();
   };
@@ -48,27 +49,29 @@ const Scanner = (props: RouteComponentProps) => {
 
   const onCameraError = (error: any) => {
     console.error("Camera error:", error);
-    setToastMessage("Camera Error: " + (error.message || JSON.stringify(error)));
+    setToastMessage(
+      "Camera Error: " + (error.message || JSON.stringify(error))
+    );
     setShowToast(true);
   };
 
   return (
     <IonPage>
       <IonContent fullscreen>
-        <QRCodeScanner
-          onScanned={onScanned}
-          onError={onCameraError}
-        />
+        <QRCodeScanner onScanned={onScanned} onError={onCameraError} />
         <IonFab vertical="bottom" horizontal="start" slot="fixed">
           <IonFabButton>
-            <IonIcon icon={ellipsisHorizontalOutline} style={{ color: "white" }} />
+            <IonIcon
+              icon={ellipsisHorizontalOutline}
+              style={{ color: "white" }}
+            />
           </IonFabButton>
           <IonFabList side="top">
             <IonFabButton onClick={toggleTorch}>
-              <IonIcon icon={flashlightOutline} style={{ color: "white" }} />
+              <IonIcon icon={flashlightOutline} />
             </IonFabButton>
             <IonFabButton onClick={goBack}>
-              <IonIcon icon={closeOutline} style={{ color: "white" }} />
+              <IonIcon icon={closeOutline} />
             </IonFabButton>
           </IonFabList>
         </IonFab>

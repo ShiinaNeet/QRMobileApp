@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import "./QRCodeScanner.css";
-import { BarcodeScanner } from "@capacitor-community/barcode-scanner";
+import {
+  BarcodeScanner,
+  BarcodeFormat,
+  LensFacing,
+} from "@capacitor-mlkit/barcode-scanning";
 
 export interface QRCodeScannerProps {
   onScanned?: (result: string) => void;
@@ -17,29 +21,44 @@ const QRCodeScanner: React.FC<QRCodeScannerProps> = (
     const startScan = async () => {
       try {
         // Check/request camera permission
-        const status = await BarcodeScanner.checkPermission({ force: true });
-        if (!status.granted) {
-          if (props.onError) {
-            props.onError("Camera permission denied");
+        const { camera } = await BarcodeScanner.checkPermissions();
+        if (camera !== "granted") {
+          const { camera: newStatus } =
+            await BarcodeScanner.requestPermissions();
+          if (newStatus !== "granted") {
+            if (props.onError) {
+              props.onError("Camera permission denied");
+            }
+            return;
           }
-          return;
         }
 
         // Make background transparent for camera view
-        BarcodeScanner.hideBackground();
         document.body.classList.add("scanner-active");
         setScanning(true);
         scannerActive.current = true;
 
-        // Start scanning
-        const result = await BarcodeScanner.startScan();
-
-        // Scan complete - result received
-        if (result.hasContent && result.content) {
-          if (props.onScanned) {
-            props.onScanned(result.content);
+        // Add listener for barcode scans
+        const listener = await BarcodeScanner.addListener(
+          "barcodeScanned",
+          (result) => {
+            if (result.barcode?.rawValue) {
+              if (props.onScanned) {
+                props.onScanned(result.barcode.rawValue);
+              }
+            }
           }
-        }
+        );
+
+        // Start scanning
+        await BarcodeScanner.startScan({
+          formats: [BarcodeFormat.QrCode],
+          lensFacing: LensFacing.Back,
+        });
+
+        return () => {
+          listener.remove();
+        };
       } catch (error) {
         console.error("Scanner error:", error);
         if (props.onError) {
@@ -54,7 +73,7 @@ const QRCodeScanner: React.FC<QRCodeScannerProps> = (
       // Cleanup on unmount
       if (scannerActive.current) {
         BarcodeScanner.stopScan();
-        BarcodeScanner.showBackground();
+        BarcodeScanner.removeAllListeners();
         document.body.classList.remove("scanner-active");
         scannerActive.current = false;
       }
