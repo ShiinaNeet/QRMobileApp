@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { Preferences } from "@capacitor/preferences";
 import axios from "axios";
+import { useHistory } from "react-router-dom";
 
 import { setupAxiosInterceptors } from "./axios";
 import { key } from "ionicons/icons";
@@ -120,6 +121,84 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
     checkAuth();
   }, []);
+
+  const history = useHistory();
+  const lastInteractionTime = useRef(Date.now());
+  const logoutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const IDLE_TIMEOUT = 60000; // 1 minute in milliseconds
+
+    const performLogout = () => {
+      console.log("[AutoLogout] Logging out due to inactivity");
+      logout(() => {
+        history.push("/login", {
+          message: "You are inactive for 1 minute, we've logged you out",
+        });
+      });
+    };
+
+    const resetTimer = () => {
+      lastInteractionTime.current = Date.now();
+      console.log("[AutoLogout] Timer reset at", new Date().toLocaleTimeString());
+    };
+
+    // Check every second if we've exceeded the idle timeout
+    const intervalId = setInterval(() => {
+      const elapsed = Date.now() - lastInteractionTime.current;
+      if (elapsed >= IDLE_TIMEOUT) {
+        console.log("[AutoLogout] Idle timeout reached, elapsed:", elapsed);
+        clearInterval(intervalId);
+        performLogout();
+      }
+    }, 1000);
+
+    const handleAppStateChange = (state: any) => {
+      console.log("[AutoLogout] App state changed:", state.isActive ? "active" : "background");
+      if (state.isActive) {
+        // App has resumed. Check if we should have logged out.
+        const timeSinceLastInteraction = Date.now() - lastInteractionTime.current;
+        if (timeSinceLastInteraction >= IDLE_TIMEOUT) {
+          performLogout();
+        }
+      }
+    };
+
+    // Mobile-friendly events
+    const events = [
+      "touchstart",
+      "touchmove", 
+      "touchend",
+      "click",
+      "keydown",
+      "scroll",
+      "mousemove",
+    ];
+
+    // Add event listeners
+    events.forEach((event) => window.addEventListener(event, resetTimer, { passive: true }));
+    
+    // Add Capacitor App State listener
+    import('@capacitor/app').then(({ App }) => {
+      App.addListener('appStateChange', handleAppStateChange);
+    });
+
+    // Start initial timer
+    resetTimer();
+
+    // Cleanup
+    return () => {
+      clearInterval(intervalId);
+      events.forEach((event) =>
+        window.removeEventListener(event, resetTimer)
+      );
+      import('@capacitor/app').then(({ App }) => {
+        App.removeAllListeners();
+      });
+    };
+  }, [isAuthenticated, history]);
 
   return (
     <AuthContext.Provider

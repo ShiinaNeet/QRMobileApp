@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
   IonContent,
   IonHeader,
@@ -40,6 +41,24 @@ export default function Login(props: RouteComponentProps) {
     isOpen: false,
     message: "",
   });
+
+  const location = useLocation<{ message?: string }>();
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setAlertMessage({
+        isOpen: true,
+        message: location.state.message,
+      });
+      // Clear state to prevent showing message again on reload? 
+      // React Router's location state persists until replaced.
+      // We can leave it for now or clear it. 
+      // To strictly follow "add message that you are inactive", this is sufficient.
+      
+      // If we want to clear it, we'd need history.replace(). 
+      // But let's stick to the simplest requirement first.
+    }
+  }, [location]);
 
   const handleLogin = async () => {
     setIslLoading(true);
@@ -340,7 +359,12 @@ export default function Login(props: RouteComponentProps) {
         isOpen={alertMessage.isOpen}
         message={alertMessage.message}
         onDidDismiss={() => setAlertMessage({ ...alertMessage, isOpen: false })}
-        duration={2000}
+        buttons={[
+          {
+            text: 'OK',
+            role: 'cancel',
+          },
+        ]}
       ></IonToast>
     </>
   );
